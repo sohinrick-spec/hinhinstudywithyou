@@ -102,7 +102,6 @@ function useWrongBook(userName, leaderboardData, isOnline, refetchLeaderboard) {
         if (cloudBook[op.questionId]) continue;
 
         pendingAdds[op.questionId] = {
-          question: op.questionData,
           correctStreak: 0,
           wrongCount: 1,
           addedAt: Date.now(),
@@ -118,17 +117,7 @@ function useWrongBook(userName, leaderboardData, isOnline, refetchLeaderboard) {
       const cloudIds = Object.keys(cloudBook);
       for (let i = 0; i < cloudIds.length; i++) {
         const id = cloudIds[i];
-        const cloudEntry = cloudBook[id];
-        const localEntry = prev ? prev[id] : null;
-
-        const cloudQ = cloudEntry.question;
-        const localQ = localEntry ? localEntry.question : null;
-
-        let finalQuestion = cloudQ;
-        if (localQ && isQuestionComplete(localQ) && !isQuestionComplete(cloudQ)) {
-          finalQuestion = localQ;
-        }
-        merged[id] = { ...cloudEntry, question: finalQuestion };
+        merged[id] = { ...cloudBook[id] };
       }
 
       // 疊加真正待上傳的離線新增
@@ -188,29 +177,11 @@ function useWrongBook(userName, leaderboardData, isOnline, refetchLeaderboard) {
     const id = getQuestionId(question);
     if (!id || !userName || userName === "訪客 (未登入)") return;
 
-    // 🆕 深拷貝，避免後續題庫物件被修改影響錯題簿
-    let snapshot;
-    try {
-      snapshot = JSON.parse(JSON.stringify(question));
-    } catch (e) {
-      snapshot = { ...question };
-    }
-
-    // 🆕 存入前驗證完整性，若殘缺直接警告（不寫入錯題簿）
-    if (!isQuestionComplete(snapshot)) {
-      console.warn('[WrongBook] 題目資料不完整，跳過加入錯題簿:', snapshot);
-      return;
-    }
-
-    setWrongBook(prev => {
+   setWrongBook(prev => {
       const existing = prev[id];
-      const keptQuestion = existing && isQuestionComplete(existing.question)
-        ? existing.question
-        : snapshot;
       return {
         ...prev,
         [id]: {
-          question: keptQuestion,
           correctStreak: 0,
           wrongCount: existing ? (existing.wrongCount || 0) + 1 : 1,
           addedAt: existing ? existing.addedAt : Date.now(),
@@ -220,7 +191,7 @@ function useWrongBook(userName, leaderboardData, isOnline, refetchLeaderboard) {
         }
       };
     });
-    sendOp('wrongbook_add', { questionId: id, questionData: snapshot });
+    sendOp('wrongbook_add', { questionId: id });
 }, [userName, sendOp]);
 
   const recordReviewAnswer = useCallback((question, isCorrect) => {
