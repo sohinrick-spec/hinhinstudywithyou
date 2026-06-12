@@ -1641,7 +1641,16 @@ const ERROR_TAGS = [
 
 const SPACED_REP_DAYS = 7; // 超過幾天算記憶衰退
 
-function WrongBookScreen({ onBack, onStartReview, wrongBook, onUpdateNote }) {
+function WrongBookScreen({ onBack, onStartReview, wrongBook, onUpdateNote, questionPool = [] }) {
+  const questionById = useMemo(() => {
+    const map = {};
+    for (const q of questionPool) {
+      const id = getQuestionId(q);
+      if (id) map[id] = q;
+    }
+    return map;
+  }, [questionPool]);
+
   const [expanded, setExpanded] = useState(null);
   const [noteInput, setNoteInput] = useState('');
   const [filterChapter, setFilterChapter] = useState('all');
@@ -1660,7 +1669,8 @@ function WrongBookScreen({ onBack, onStartReview, wrongBook, onUpdateNote }) {
   const chapters = useMemo(() => {
     const set = new Set();
     allEntries.forEach(e => {
-      const cat = e.question && (e.question.category || '');
+      const q = questionById[e.id];
+      const cat = q ? (q.category || '') : '';
       if (cat) set.add(cat);
     });
     return Array.from(set).sort();
@@ -1675,7 +1685,7 @@ function WrongBookScreen({ onBack, onStartReview, wrongBook, onUpdateNote }) {
     let list = deathMatchMode ? deathMatchEntries : allEntries;
 
     if (filterChapter !== 'all') {
-      list = list.filter(e => (e.question && e.question.category) === filterChapter);
+      list = list.filter(e => (questionById[e.id]?.category || '') === filterChapter);
     }
 
     if (filterSort === 'wrongCount') {
@@ -1806,7 +1816,7 @@ function WrongBookScreen({ onBack, onStartReview, wrongBook, onUpdateNote }) {
 
             {/* ── 主要操作按鈕 ── */}
             <button
-              onClick={() => onStartReview(deathMatchMode ? deathMatchEntries.map(e => e.question).filter(Boolean) : null)}
+              onClick={() => onStartReview(deathMatchMode ? deathMatchEntries.map(e => questionById[e.id]).filter(Boolean) : null)}
               className={`w-full mb-4 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 ${
                 deathMatchMode
                   ? 'bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700'
@@ -1833,7 +1843,7 @@ function WrongBookScreen({ onBack, onStartReview, wrongBook, onUpdateNote }) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                           <span className="text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full font-bold">
-                            {entry.question && entry.question.category || '—'}
+                            {questionById[entry.id]?.category || '—'}
                           </span>
                           <span className={`text-[10px] px-2 py-0.5 rounded-full ${
                             entry.wrongCount >= 3
@@ -1859,7 +1869,7 @@ function WrongBookScreen({ onBack, onStartReview, wrongBook, onUpdateNote }) {
                           })}
                         </div>
                         <p className="text-sm text-gray-800 dark:text-gray-100 break-words line-clamp-2">
-                          {formatText(entry.question && (entry.question.title || entry.question.question) || '(無題目內容)')}
+                          {formatText((() => { const q = questionById[entry.id]; return q ? (q.title || q.question) : null; })() || '(題目已從題庫移除)')}
                         </p>
                         {/* 筆記預覽（非展開狀態）*/}
                         {entry.note && expanded !== entry.id && (
@@ -1883,20 +1893,20 @@ function WrongBookScreen({ onBack, onStartReview, wrongBook, onUpdateNote }) {
                           className="overflow-hidden bg-gray-50 dark:bg-gray-900/30 border-t border-gray-200 dark:border-gray-700">
                           <div className="p-3 text-sm space-y-3">
                             {/* 選項與答案 */}
-                            {entry.question && resolveOptions(entry.question).length > 0 && (
+                            {questionById[entry.id] && resolveOptions(questionById[entry.id]).length > 0 && (
                               <div className="space-y-1">
-                                {resolveOptions(entry.question).map((opt, i) => (
-                                  <div key={i} className={`flex items-start gap-2 ${i === resolveCorrectIndex(entry.question.correctIndex) ? 'text-green-700 dark:text-green-400 font-semibold' : 'text-gray-600 dark:text-gray-300'}`}>
+                                {resolveOptions(questionById[entry.id]).map((opt, i) => (
+                                  <div key={i} className={`flex items-start gap-2 ${i === resolveCorrectIndex(questionById[entry.id].correctIndex) ? 'text-green-700 dark:text-green-400 font-semibold' : 'text-gray-600 dark:text-gray-300'}`}>
                                     <span className="flex-shrink-0">{String.fromCharCode(65 + i)}.</span>
-                                    <span className="break-words">{formatText(opt)}{i === resolveCorrectIndex(entry.question.correctIndex) && ' ✓'}</span>
+                                    <span className="break-words">{formatText(opt)}{i === resolveCorrectIndex(questionById[entry.id].correctIndex) && ' ✓'}</span>
                                   </div>
                                 ))}
                               </div>
                             )}
-                            {entry.question && entry.question.explanation && (
+                            {questionById[entry.id]?.explanation && (
                               <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded text-xs text-blue-800 dark:text-blue-300">
                                 <i className="fas fa-lightbulb mr-1"></i>
-                                {formatText(entry.question.explanation)}
+                                {formatText(questionById[entry.id].explanation)}
                               </div>
                             )}
 
