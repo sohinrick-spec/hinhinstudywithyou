@@ -380,9 +380,14 @@ const [mySkipCards, setMySkipCards] = useState(0);
 
   const startWrongBookSession = useCallback((customQuestions = null) => {
     // 魔王模式傳入 customQuestions（死穴題列表），否則用全部錯題
+   const questionById = {};
+    for (const q of questionPool) {
+      const qid = getQuestionId(q);
+      if (qid) questionById[qid] = q;
+    }
     const rawQuestions = customQuestions
       ? customQuestions.filter(Boolean)
-      : Object.values(wrongBook).map(e => e.question).filter(Boolean);
+      : Object.keys(wrongBook).map(id => questionById[id]).filter(Boolean);
 
     if (rawQuestions.length === 0) {
       return toast(customQuestions ? "目前沒有符合條件的死穴題！答錯 3 次以上的題目才會出現。" : "錯題簿是空的，快去練習累積錯題吧！", "info", 3000);
@@ -775,6 +780,7 @@ const [mySkipCards, setMySkipCards] = useState(0);
               onStartReview={startWrongBookSession}
               wrongBook={wrongBook}
               onUpdateNote={updateNote}
+              questionPool={questionPool}
             />
           </motion.div>
         )}
