@@ -338,6 +338,9 @@ function StartScreen({
           )}
         </div>
       </div>
+      <p className="text-center text-xs text-gray-400 dark:text-gray-600 mt-4 pb-2">
+        ©  Hinhinstudywithyou. All Rights Reserved.
+      </p>
     </div>
   );
 }
