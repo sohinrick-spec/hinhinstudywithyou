@@ -38,13 +38,13 @@
       body: JSON.stringify({ action: 'sync_user', name, skipCards })
     });
   },
-  claimQuestReward({ name, coins, xp }) {
-    return fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+  async claimQuestReward({ name, coins, xp }) {
+    const res = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: 'wrongbook_reward', name, coins, xp })
     });
-      return res.json();
+    return res.json();
   },
   wrongBookReward({ name }) {
     return fetch(CONFIG.GOOGLE_SCRIPT_URL, {
