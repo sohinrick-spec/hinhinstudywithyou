@@ -765,7 +765,7 @@ const [mySkipCards, setMySkipCards] = useState(0);
                 <i className="fas fa-lock text-4xl text-red-500 mb-4"></i>
                 <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">權限不足</h2>
                 <p className="text-gray-500 dark:text-gray-400 mb-4">此頁面僅限教師使用。</p>
-                <button onClick={() => setGameState('start')} className="bg-slate-500 hover:bg-slate-600 text-white px-6 py-2 rounded-lg">
+                <button onClick={() => setGameState('start')} className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg">
                   返回主頁
                 </button>
               </div>
@@ -814,7 +814,7 @@ const [mySkipCards, setMySkipCards] = useState(0);
                 <i className="fas fa-lock text-4xl text-red-500 mb-4"></i>
                 <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">權限不足</h2>
                 <p className="text-gray-500 dark:text-gray-400 mb-4">此頁面僅限教師使用。</p>
-                <button onClick={() => setGameState('start')} className="bg-slate-500 hover:bg-slate-600 text-white px-6 py-2 rounded-lg">返回主頁</button>
+                <button onClick={() => setGameState('start')} className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg">返回主頁</button>
               </div>
             )}
           </motion.div>

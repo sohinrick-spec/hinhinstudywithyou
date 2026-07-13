@@ -179,38 +179,20 @@ const NetworkStatusToast = memo(function NetworkStatusToast({ isOnline, justReco
   );
 });
 
-const QuestionProgressBar = memo(function QuestionProgressBar({ current, total, results = [] }) {
-  const answered = results.length;
-  const correctCount = results.filter(r => r.isCorrect).length;
-  const wrongCount = answered - correctCount;
+const QuestionProgressBar = memo(function QuestionProgressBar({ current, total }) {
+  const percent = Math.min(100, Math.round((current / total) * 100));
   return (
     <div className="w-full mb-3">
-      <div className="flex justify-between items-center text-[10px] font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+      <div className="flex justify-between text-[10px] font-medium text-gray-500 dark:text-gray-400 mb-1">
         <span><i className="fas fa-flag-checkered mr-1"></i>進度 {current}/{total}</span>
-        <span className="font-mono flex items-center gap-2">
-          <span className="text-green-600 dark:text-green-400">✓{correctCount}</span>
-          <span className="text-red-500 dark:text-red-400">✕{wrongCount}</span>
-        </span>
+        <span>{percent}%</span>
       </div>
-      <div className="flex gap-0.5">
-        {Array.from({ length: total }).map((_, i) => {
-          let cls;
-          if (i < answered) {
-            cls = results[i].isCorrect
-              ? 'bg-green-500 dark:bg-green-400'
-              : 'bg-red-400 dark:bg-red-500';
-          } else if (i === current - 1) {
-            cls = 'bg-indigo-500 dark:bg-indigo-400 animate-pulse';
-          } else {
-            cls = 'bg-gray-200 dark:bg-gray-700';
-          }
-          return (
-            <div
-              key={i}
-              className={`flex-1 h-1.5 rounded-full transition-colors duration-300 ${cls}`}
-            />
-          );
-        })}
+      <div className="relative w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div
+          className="absolute inset-y-0 left-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${percent}%` }}>
+          <div className="absolute inset-0 progress-shine rounded-full"></div>
+        </div>
       </div>
     </div>
   );

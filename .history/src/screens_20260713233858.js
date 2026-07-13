@@ -90,7 +90,7 @@ function StartScreen({
                 <div className="h-px bg-gray-300 dark:bg-slate-500 flex-1"></div>
               </div>
               <button onClick={() => { setIsGuest(true); setUserName("訪客 (未登入)"); }}
-                className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors border border-gray-300 dark:border-gray-600 flex justify-center items-center gap-2">
+                className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg transition-colors border border-gray-300 dark:border-gray-600 flex justify-center items-center gap-2">
                 <i className="fa-solid fa-user-secret"></i>
                 不登入，以訪客身分開始 (不記錄成績)
               </button>
@@ -234,7 +234,7 @@ function StartScreen({
                           className={`text-sm py-2 px-4 rounded-md transition-all font-medium ${
                             settings.selectedElectives.includes(code)
                               ? 'bg-green-600 dark:bg-green-500 text-white shadow-md transform scale-105'
-                              : 'bg-white dark:bg-gray-800 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-slate-600'
+                              : 'bg-white dark:bg-gray-800 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-gray-700'
                           }`}>
                           {code}
                         </button>
@@ -687,7 +687,7 @@ function LeaderboardScreen({ onBack, leaderboardData, userName, loadingRank }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-left">
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white p-3 font-bold flex justify-between items-center">
+            <div className="bg-indigo-600 dark:bg-indigo-700 text-white p-3 font-bold flex justify-between items-center">
               <span>📅 每日最強</span><span className="text-xs opacity-75">今日戰況</span>
             </div>
             <div className="p-2 max-h-[60vh] overflow-y-auto custom-scrollbar">
@@ -699,7 +699,7 @@ function LeaderboardScreen({ onBack, leaderboardData, userName, loadingRank }) {
           </div>
 
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 text-white p-3 font-bold flex justify-between items-center">
+            <div className="bg-purple-600 dark:bg-purple-700 text-white p-3 font-bold flex justify-between items-center">
               <span>⚡ 本週最強</span><span className="text-xs opacity-75">本週累積答對</span>
             </div>
             <div className="p-2 max-h-[60vh] overflow-y-auto custom-scrollbar">
@@ -711,7 +711,7 @@ function LeaderboardScreen({ onBack, leaderboardData, userName, loadingRank }) {
           </div>
         </div>
 
-        <button onClick={onBack} className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-slate-500 text-gray-700 dark:text-gray-200 font-bold py-3 px-8 rounded-xl shadow transition-colors">
+        <button onClick={onBack} className="bg-slate-500 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-slate-500 text-white font-bold py-3 px-8 rounded-xl shadow transition-colors">
           <i className="fas fa-home mr-2"></i> 回到主頁
         </button>
       </div>
@@ -1247,7 +1247,7 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName }) {
               className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
                 selectedForm === form.id
                   ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-indigo-50 dark:hover:bg-slate-600'
+                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-indigo-50 dark:hover:bg-gray-700'
               }`}>
               {selectedForm === form.id && <i className="fas fa-check-circle"></i>}
               {form.label}
@@ -1498,7 +1498,7 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName }) {
                 {sortedStudents.length === 0 ? (
                   <tr><td colSpan="7" className="text-center text-gray-400 dark:text-gray-500 py-6">暫無學生數據</td></tr>
                 ) : sortedStudents.map((s, i) => (
-                  <tr key={i} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-600/50">
+                  <tr key={i} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                     <td className="py-2 px-2 font-medium text-gray-800 dark:text-gray-100">{s.name}</td>
                     <td className="py-2 px-2 text-right bg-amber-50/50 dark:bg-amber-900/10">
                       {s.todayQuestions > 0 ? (

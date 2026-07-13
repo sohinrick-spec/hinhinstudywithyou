@@ -699,7 +699,7 @@ function LeaderboardScreen({ onBack, leaderboardData, userName, loadingRank }) {
           </div>
 
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 text-white p-3 font-bold flex justify-between items-center">
+            <div className="bg-purple-600 dark:bg-purple-700 text-white p-3 font-bold flex justify-between items-center">
               <span>⚡ 本週最強</span><span className="text-xs opacity-75">本週累積答對</span>
             </div>
             <div className="p-2 max-h-[60vh] overflow-y-auto custom-scrollbar">

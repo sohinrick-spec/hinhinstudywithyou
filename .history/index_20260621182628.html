@@ -14,54 +14,9 @@
   <script src="https://unpkg.com/@babel/standalone@7.24.0/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    /* ============================================================
-     * 🆕 [Stage A] 品牌換色 + 字體
-     *   - indigo → 深青（主色）；purple → 深藍青（次色）
-     *   - 只 remap 這兩個色階；green/red/amber/blue/pink/rose 全部保留預設
-     *   - 全站現有 class（bg-indigo-600、from-indigo-500…）自動套用新色
-     *   - 字體：拉丁字母 Space Grotesk，中文 fallback Noto Sans TC，等寬 JetBrains Mono
-     * ============================================================ */
     tailwind.config = {
       darkMode: 'class',
-      future: { hoverOnlyWhenSupported: true },
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Space Grotesk', 'Noto Sans TC', 'sans-serif'],
-            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace']
-          },
-          colors: {
-            /* 主色：深青 (Deep Teal) — 取代原 indigo */
-            indigo: {
-              50:  '#eef7f7',
-              100: '#d4ecec',
-              200: '#a9d9da',
-              300: '#74c0c2',
-              400: '#40a3a6',
-              500: '#1f8a8d',
-              600: '#157175',
-              700: '#135c60',
-              800: '#144a4d',
-              900: '#143d40',
-              950: '#0a2426'
-            },
-            /* 次色：深藍青 (Deep Cerulean) — 取代原 purple；與主色形成協調漸層 */
-            purple: {
-              50:  '#eef4fb',
-              100: '#d8e5f4',
-              200: '#b4cce8',
-              300: '#84aad8',
-              400: '#5285c3',
-              500: '#3468ab',
-              600: '#26548f',
-              700: '#204575',
-              800: '#1e3b61',
-              900: '#1c3352',
-              950: '#111f34'
-            }
-          }
-        }
-      }
+      future: { hoverOnlyWhenSupported: true }
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -69,9 +24,8 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
-    /* 🆕 [Stage A] 字體載入：Space Grotesk（拉丁/數字）+ JetBrains Mono（等寬）+ 原 Noto Sans TC（中文） */
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
-    body { font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+    body { font-family: 'Noto Sans TC', sans-serif; }
     .glass-panel {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
@@ -128,32 +82,24 @@
       100% { transform: scale(1); opacity: 1; }
     }
     .bubble-pop { animation: bubble-pop 0.4s ease-out; }
-
-    /* ============================================================
-     * 🆕 [Stage A] 連擊簽名效果：暈開 / 發光 雙模式
-     *   - combo-border-correct：3~4 連擊，綠色光暈綻放後淡出（bleed）
-     *   - combo-border-rainbow：5+ 連擊，彩虹光暈持續繞邊（glow）
-     * ============================================================ */
-    @keyframes correct-glow {
-      0%   { border-color: #22c55e; box-shadow: 0 0 20px 3px rgba(34,197,94,0.55); }
-      60%  { border-color: #4ade80; box-shadow: 0 0 26px 5px rgba(74,222,128,0.35); }
-      100% { border-color: transparent; box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+    @keyframes rainbow-border {
+      0%   { border-color: #f87171; box-shadow: 0 0 0 2px #f87171; }
+      16%  { border-color: #fb923c; box-shadow: 0 0 0 2px #fb923c; }
+      33%  { border-color: #facc15; box-shadow: 0 0 0 2px #facc15; }
+      50%  { border-color: #4ade80; box-shadow: 0 0 0 2px #4ade80; }
+      66%  { border-color: #60a5fa; box-shadow: 0 0 0 2px #60a5fa; }
+      83%  { border-color: #c084fc; box-shadow: 0 0 0 2px #c084fc; }
+      100% { border-color: #f87171; box-shadow: 0 0 0 2px #f87171; }
+    }
+    @keyframes correct-flash {
+      0%   { border-color: #4ade80; box-shadow: 0 0 0 3px #4ade80; }
+      100% { border-color: transparent; box-shadow: none; }
     }
     .combo-border-correct {
-      animation: correct-glow 0.85s ease-out forwards;
-    }
-
-    @keyframes rainbow-glow {
-      0%   { border-color: #f87171; box-shadow: 0 0 18px 3px rgba(248,113,113,0.55); }
-      16%  { border-color: #fb923c; box-shadow: 0 0 18px 3px rgba(251,146,60,0.55); }
-      33%  { border-color: #facc15; box-shadow: 0 0 18px 3px rgba(250,204,21,0.55); }
-      50%  { border-color: #4ade80; box-shadow: 0 0 18px 3px rgba(74,222,128,0.55); }
-      66%  { border-color: #22d3ee; box-shadow: 0 0 18px 3px rgba(34,211,238,0.55); }
-      83%  { border-color: #818cf8; box-shadow: 0 0 18px 3px rgba(129,140,248,0.55); }
-      100% { border-color: #f87171; box-shadow: 0 0 18px 3px rgba(248,113,113,0.55); }
+      animation: correct-flash 0.6s ease-out forwards;
     }
     .combo-border-rainbow {
-      animation: rainbow-glow 1.6s linear infinite;
+      animation: rainbow-border 1.5s linear infinite;
     }
   </style>
 </head>
@@ -202,3 +148,4 @@
 
 </body>
 </html>
+zzzz
