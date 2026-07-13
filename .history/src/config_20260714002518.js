@@ -157,12 +157,12 @@ const SHOP_ITEMS = [
     maxOwnMsg: `⚠️ 護盾最多只能持有 ${CONFIG.MAX_SHIELDS} 個喔！`
   },
   {
-    id: 'doubleXP', userField: 'doubleXP', col: 6, badgeLabel: '雙倍卡剩餘', unit: '題',
+    id: 'doubleXP', userField: 'doubleXP', col: 7, badgeLabel: '雙倍卡剩餘', unit: '題',
     icon: '✨', name: '雙倍經驗卡', desc: '接下來的 20 題，每題結算時可獲得 2 點 XP（加速升級用）。',
     price: 1000, color: 'purple'
   },
   {
-    id: 'skip', userField: 'skipCards', col: 7, badgeLabel: '跳題卡', unit: '張',
+    id: 'skip', userField: 'skipCards', col: 8, badgeLabel: '跳題卡', unit: '張',
     icon: '🃏', name: '跳題卡', desc: '遇到不會的題目？單次跳過！',
     price: 200, color: 'green'
   }

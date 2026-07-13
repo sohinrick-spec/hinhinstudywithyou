@@ -162,7 +162,7 @@ const SHOP_ITEMS = [
     price: 1000, color: 'purple'
   },
   {
-    id: 'skip', userField: 'skipCards', col: 7, badgeLabel: '跳題卡', unit: '張',
+    id: 'skip', userField: 'skipCards', col: 8, badgeLabel: '跳題卡', unit: '張',
     icon: '🃏', name: '跳題卡', desc: '遇到不會的題目？單次跳過！',
     price: 200, color: 'green'
   }
