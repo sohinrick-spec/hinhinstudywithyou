@@ -112,7 +112,7 @@
     const res = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'update_assignment', token: __ADMIN_TOKEN__, ...payload })
+      body: JSON.stringify({ action: 'update_assignment', ...payload })
     });
     return res.json();
   }

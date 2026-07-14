@@ -664,26 +664,6 @@ const [mySkipCards, setMySkipCards] = useState(0);
   🎮
 </button>
 
-{/* 🔐 管理員登入 / 已解鎖狀態按鈕 */}
-{gameState === 'start' && (
-  <button
-    onClick={() => {
-      if (isAdminUnlocked) {
-        requireAdmin('assignment_admin');
-      } else {
-        setAdminModal({ open: true, target: null, pwd: '', loading: false, error: '' });
-      }
-    }}
-    title={isAdminUnlocked ? '已解鎖管理員（點擊進入派卷管理）' : '管理員登入'}
-    className={`fixed top-[10.25rem] right-4 z-[999] w-10 h-10 rounded-full shadow-lg border flex items-center justify-center transition-all hover:scale-110 text-lg ${
-      isAdminUnlocked
-        ? 'bg-emerald-500 border-emerald-400 text-white'
-        : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
-    }`}>
-    <i className={isAdminUnlocked ? 'fas fa-unlock' : 'fas fa-user-shield'}></i>
-  </button>
-)}
-
 {gameState === 'flipped' && (
   <motion.div key="flipped" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
     className="fixed inset-0 z-[9999] flex flex-col bg-white dark:bg-gray-900">
@@ -920,45 +900,6 @@ const [mySkipCards, setMySkipCards] = useState(0);
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* 🔐 管理員登入 Modal */}
-      {adminModal.open && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
-             onClick={() => setAdminModal({ open: false, target: null, pwd: '', loading: false, error: '' })}>
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm"
-               onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">
-              <i className="fas fa-lock text-indigo-500 mr-2"></i>管理員驗證
-            </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">請輸入管理員密碼以進入教師功能</p>
-            <input
-              type="password"
-              autoFocus
-              value={adminModal.pwd}
-              onChange={(e) => setAdminModal(m => ({ ...m, pwd: e.target.value, error: '' }))}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !adminModal.loading) handleAdminLogin(); }}
-              placeholder="管理員密碼"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 outline-none"
-            />
-            {adminModal.error && (
-              <p className="text-sm text-red-500 mt-2">{adminModal.error}</p>
-            )}
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => setAdminModal({ open: false, target: null, pwd: '', loading: false, error: '' })}
-                className="flex-1 py-2 rounded-lg bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold hover:bg-gray-300 dark:hover:bg-gray-500 transition">
-                取消
-              </button>
-              <button
-                onClick={handleAdminLogin}
-                disabled={adminModal.loading || !adminModal.pwd}
-                className="flex-1 py-2 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition disabled:opacity-50">
-                {adminModal.loading ? '驗證中…' : '登入'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

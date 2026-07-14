@@ -2,31 +2,7 @@
  * 【區塊 3】API SERVICE
  * ============================================================================ */
 
-  // 🔐 管理員 token（存記憶體，重新整理頁面需重新登入）
-  let __ADMIN_TOKEN__ = null;
-
   const api = {
-  // 🔐 驗證管理員密碼，成功就記住 token
-  async verifyAdmin(password) {
-    try {
-      const res = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'verify_admin', password })
-      });
-      const data = await res.json();
-      if (data && data.ok && data.token) {
-        __ADMIN_TOKEN__ = data.token;
-        return true;
-      }
-      return false;
-    } catch (e) {
-      return false;
-    }
-  },
-  isAdminUnlocked() {
-    return !!__ADMIN_TOKEN__;
-  },
   async fetchQuestions() {
     const res = await fetch(CONFIG.QUESTION_API_URL);
     return res.json();
@@ -82,7 +58,7 @@
     const res = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'create_assignment', token: __ADMIN_TOKEN__, ...payload })
+      body: JSON.stringify({ action: 'create_assignment', ...payload })
     });
     return res.json();
   },
@@ -97,7 +73,7 @@
     const res = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'get_assignment_report', token: __ADMIN_TOKEN__, assignmentId })
+      body: JSON.stringify({ action: 'get_assignment_report', assignmentId })
     });
     return res.json();
   },
@@ -105,14 +81,14 @@
     return fetch(CONFIG.GOOGLE_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'toggle_assignment', token: __ADMIN_TOKEN__, assignmentId, active })
+      body: JSON.stringify({ action: 'toggle_assignment', assignmentId, active })
     });
   },
   async updateAssignment(payload) {
     const res = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'update_assignment', token: __ADMIN_TOKEN__, ...payload })
+      body: JSON.stringify({ action: 'update_assignment', ...payload })
     });
     return res.json();
   }

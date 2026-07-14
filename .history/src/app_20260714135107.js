@@ -664,26 +664,6 @@ const [mySkipCards, setMySkipCards] = useState(0);
   🎮
 </button>
 
-{/* 🔐 管理員登入 / 已解鎖狀態按鈕 */}
-{gameState === 'start' && (
-  <button
-    onClick={() => {
-      if (isAdminUnlocked) {
-        requireAdmin('assignment_admin');
-      } else {
-        setAdminModal({ open: true, target: null, pwd: '', loading: false, error: '' });
-      }
-    }}
-    title={isAdminUnlocked ? '已解鎖管理員（點擊進入派卷管理）' : '管理員登入'}
-    className={`fixed top-[10.25rem] right-4 z-[999] w-10 h-10 rounded-full shadow-lg border flex items-center justify-center transition-all hover:scale-110 text-lg ${
-      isAdminUnlocked
-        ? 'bg-emerald-500 border-emerald-400 text-white'
-        : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
-    }`}>
-    <i className={isAdminUnlocked ? 'fas fa-unlock' : 'fas fa-user-shield'}></i>
-  </button>
-)}
-
 {gameState === 'flipped' && (
   <motion.div key="flipped" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
     className="fixed inset-0 z-[9999] flex flex-col bg-white dark:bg-gray-900">
