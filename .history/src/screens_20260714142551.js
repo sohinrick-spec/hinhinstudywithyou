@@ -15,8 +15,6 @@ function StartScreen({
   const levelInfo = getLevelInfo(user?.totalQuestions || 0);
   const isProfileLoading = !!userName && userName !== "訪客 (未登入)" && !leaderboardData;
   const isTeacherUser = isTeacher(userName);
-  const canAccessAdmin = isTeacherUser || isAdminUnlocked;   // 🆕 老師 或 已解鎖管理員
-
   const canShowStats = userName && userName !== "訪客 (未登入)";
 
   const currentStreak = useMemo(() => {
@@ -320,7 +318,7 @@ function StartScreen({
             )}
           </div>
 
-          {canAccessAdmin && (
+          {isTeacherUser && (
             <button onClick={onShowTeacherStats}
               className="w-full font-bold py-2.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
               <i className="fas fa-chalkboard-teacher"></i>
@@ -329,8 +327,8 @@ function StartScreen({
             </button>
           )}
 
-          {/* 🆕 任務管理按鈕（老師 / 管理員） */}
-          {canAccessAdmin && (
+          {/* 🆕 任務管理按鈕（老師專用） */}
+          {isTeacherUser && (
             <button onClick={onShowAssignmentAdmin}
               className="w-full font-bold py-2.5 px-6 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
               <i className="fas fa-paper-plane"></i>
@@ -729,7 +727,7 @@ function LeaderboardScreen({ onBack, leaderboardData, userName, loadingRank }) {
 function StatsScreen({ onBack, userName, leaderboardData, wrongBookCount, wrongBook }) {
   const [timeRange, setTimeRange] = useState(7);
   const isTeacherUser = isTeacher(userName);
-  const canAccessAdmin = isTeacherUser || isAdminUnlocked;   // 🆕 老師 或 已解鎖管理員
+  
   const [selectedStudent, setSelectedStudent] = useState('');
 
   const allStudents = useMemo(() => {

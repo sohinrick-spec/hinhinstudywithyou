@@ -17,7 +17,7 @@ function StartScreen({
   const isTeacherUser = isTeacher(userName);
   const canAccessAdmin = isTeacherUser || isAdminUnlocked;   // 🆕 老師 或 已解鎖管理員
 
-  const canShowStats = userName && userName !== "訪客 (未登入)";
+  const canShowStats = (userName && userName !== "訪客 (未登入)") || canAccessAdmin;
 
   const currentStreak = useMemo(() => {
     if (!user) return 0;

@@ -15,8 +15,6 @@ function StartScreen({
   const levelInfo = getLevelInfo(user?.totalQuestions || 0);
   const isProfileLoading = !!userName && userName !== "訪客 (未登入)" && !leaderboardData;
   const isTeacherUser = isTeacher(userName);
-  const canAccessAdmin = isTeacherUser || isAdminUnlocked;   // 🆕 老師 或 已解鎖管理員
-
   const canShowStats = userName && userName !== "訪客 (未登入)";
 
   const currentStreak = useMemo(() => {
