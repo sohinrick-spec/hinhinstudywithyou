@@ -1702,7 +1702,7 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName, question
                             </span>
                           )}
                         </div>
-                      </div>
+                      </div>a
                     </div>
                   );
                 })}
