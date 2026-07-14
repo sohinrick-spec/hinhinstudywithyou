@@ -1596,22 +1596,23 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName, question
           defaultOpen={false}
           hint="統計全班（或所選年級）所有同學的錯題本，找出最多人共同擁有的易錯題，讓老師一鍵掌握全班共同弱點。">
           {(() => {
-            const wbAll = leaderboardData?.wrongBookAll || {};
+            const wrongBookMap = leaderboardData?.wrongBookMap || {};
+            // wrongBookMap 結構：{ studentName: { questionId: { question, wrongCount, ... }, ... }, ... }
+            // 若後端沒有 wrongBookMap，嘗試從 users 陣列讀取（兼容舊格式）
             const countMap = {};
-
+            const usersArr = leaderboardData?.users || [];
+            // 嘗試從 leaderboardData.wrongBookAll（如有）讀取
+            const wbAll = leaderboardData?.wrongBookAll || wrongBookMap;
             Object.entries(wbAll).forEach(([studentName, wb]) => {
               if (!wb || typeof wb !== 'object') return;
-              // 只計算當前 form 篩選內的學生
+              // 只計算當前 formFilter 的學生
               const form = getStudentForm(studentName);
               if (selectedForm !== 'All' && form !== selectedForm) return;
-
               Object.entries(wb).forEach(([qId, entry]) => {
-                if (!entry) return;
-                const q = questionById[qId];   // 🆕 從題庫反查題目文字
-                if (!q) return;                // 題庫已移除的題目略過
+                if (!entry || !entry.question) return;
                 if (!countMap[qId]) {
                   countMap[qId] = {
-                    question: q,
+                    question: entry.question,
                     totalWrong: 0,
                     studentCount: 0,
                     students: []
@@ -1622,16 +1623,14 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName, question
                 countMap[qId].students.push(shortenName(studentName));
               });
             });
-
             const sorted = Object.values(countMap)
               .sort((a, b) => b.studentCount - a.studentCount || b.totalWrong - a.totalWrong)
               .slice(0, 10);
-
             if (sorted.length === 0) {
               return (
                 <div className="text-center py-6 text-gray-400 dark:text-gray-500 text-sm">
                   <i className="fas fa-book-open text-3xl mb-2 block"></i>
-                  暫無數據（全班目前沒有共同錯題，或題庫尚未載入完成）
+                  暫無數據（需要後端傳回 wrongBookAll 欄位）
                 </div>
               );
             }
@@ -1644,14 +1643,14 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName, question
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-snug mb-1">
-                        {formatText(item.question.title || item.question.question || '(無題目文字)')}
+                        {item.question && formatText(item.question.title || item.question.question || '(無題目文字)')}
                       </p>
                       <div className="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
                         <span className="text-red-600 dark:text-red-400 font-bold">
                           <i className="fas fa-users mr-1"></i>{item.studentCount} 位同學
                         </span>
                         <span>・總錯 {item.totalWrong} 次</span>
-                        {item.question.category && (
+                        {item.question?.category && (
                           <span className="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full">
                             {item.question.category}
                           </span>
