@@ -1182,9 +1182,10 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName }) {
 
   /* 🆕 每日趨勢資料（依當前 form 篩選） */
   const dailyTrendData = useMemo(() => {
-    const filteredKeys = new Set(filteredStudentsData.map(s => normalizeNameForMatch(s.rawName)));
+    const filteredKeys = new Set(filteredStudentsData.map(s => shortenName(s.rawName).toLowerCase()));
     const records = (leaderboardData?.records || []).filter(r => {
-      return filteredKeys.has(normalizeNameForMatch(String(r[1] || '')));
+      const k = shortenName(String(r[1] || '')).toLowerCase();
+      return filteredKeys.has(k);
     });
     return computeDailyTrend(records, trendDays);
   }, [leaderboardData, filteredStudentsData, trendDays]);

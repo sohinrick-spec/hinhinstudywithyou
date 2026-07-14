@@ -726,9 +726,15 @@ function StatsScreen({ onBack, userName, leaderboardData, wrongBookCount, wrongB
   const allStudents = useMemo(() => {
     if (!isTeacherUser) return [];
     const users = leaderboardData?.users || [];
-    return users
-      .map(u => String(u[0] || '').trim())
-      .filter(name => name && name !== '訪客 (未登入)' && !isTeacher(name))
+    const seen = new Map(); // canonicalKey → 顯示名
+    for (let i = 0; i < users.length; i++) {
+      const name = String(users[i][0] || '').trim();
+      if (!name || name === '訪客 (未登入)' || isTeacher(name)) continue;
+      const key = normalizeNameForMatch(name);
+      if (!key) continue;
+      seen.set(key, name); // 同一 key 保留最後一筆
+    }
+    return Array.from(seen.values())
       .sort((a, b) => (String(shortenName(a) || '')).localeCompare(String(shortenName(b) || '')));
   }, [leaderboardData, isTeacherUser]);
 

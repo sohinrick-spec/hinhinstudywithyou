@@ -56,27 +56,13 @@ function shortenName(fullName) {
     .trim();
 }
 
-// 傳入該學生最近一次活動的日期字串 (YYYY-MM-DD)
-function isGraduated(fullName, lastActiveDateStr) {
+// 中六同學在 5月31日後從排行榜隱藏
+function isGraduated(fullName) {
   if (getStudentForm(fullName) !== '6') return false;
-
   const now = new Date();
   const hkt = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Hong_Kong' }));
-
-  const y = hkt.getFullYear();
-  const gradYear = hkt.getMonth() >= 8 ? y + 1 : y;
-  const gradDeadline = new Date(gradYear, 4, 31);
-
-  if (hkt < gradDeadline) return false;
-
-  if (lastActiveDateStr) {
-    const [ly, lm, ld] = lastActiveDateStr.split('-').map(Number);
-    if (ly) {
-      const last = new Date(ly, lm - 1, ld);
-      if (last >= gradDeadline) return false;
-    }
-  }
-  return true;
+  // Hide from May 31 onward: month > 4, OR month === 4 AND date >= 31
+  return hkt.getMonth() > 4 || (hkt.getMonth() === 4 && hkt.getDate() >= 31);
 }
 
 function getStudentForm(fullName) {
@@ -86,6 +72,8 @@ function getStudentForm(fullName) {
 }
 
 // 從全名提取純英文姓名部分作為永久識別 key
+// 例："6B03 Chan Tai Man" → "Chan Tai Man"
+// 若無班號前綴則原樣返回
 function getCanonicalName(fullName) {
   if (!fullName) return fullName;
   return String(fullName).replace(/^[4-6][A-Z]\d+\s*/i, '').trim() || fullName;
@@ -100,53 +88,6 @@ function normalizeNameForMatch(name) {
     .filter(Boolean)
     .sort()
     .join(' ');
-}
-
-/* ============================================================================
- * 🆕 跨學年身份 → 當前 form 對照
- * 以「最新一筆記錄」的班號決定學生現在屬於哪個 form,
- * 解決同一人有新舊兩種班號記錄時被算成兩個 form 的問題。
- * key 使用 normalizeNameForMatch,與後端 canonicalKey_ 完全一致。
- * ============================================================================ */
-function buildStudentFormMap(records) {
-  const latest = new Map(); // key → { form, displayName, dateStr }
-  for (let i = 0; i < (records || []).length; i++) {
-    const r = records[i];
-    const rawName = String(r[1] || '').trim();
-    if (!rawName || rawName === '訪客 (未登入)' || rawName === 'Guest') continue;
-
-    const key = normalizeNameForMatch(rawName);
-    if (!key) continue;
-
-    const form = getStudentForm(rawName);
-    const dateStr = extractRecordDateStr(r);
-    const prev = latest.get(key);
-
-    if (!prev) {
-      latest.set(key, { form, displayName: rawName, dateStr: dateStr || '' });
-    } else if (dateStr && dateStr >= prev.dateStr) {
-      // 較新的記錄 → 更新 form 與顯示名(form 缺失時保留舊值)
-      latest.set(key, {
-        form: form || prev.form,
-        displayName: rawName,
-        dateStr
-      });
-    } else if (!prev.form && form) {
-      // 舊記錄但補上先前缺失的 form
-      prev.form = form;
-    }
-  }
-  return latest;
-}
-
-// 查某人的「當前 form」:優先用記錄推導的最新 form,退回直接判斷
-function resolveStudentForm(name, formMap) {
-  if (!name) return null;
-  if (formMap) {
-    const hit = formMap.get(normalizeNameForMatch(name));
-    if (hit && hit.form) return hit.form;
-  }
-  return getStudentForm(name);
 }
 
 /* 預先正規化老師名稱清單（模組載入時一次） */
@@ -226,21 +167,24 @@ function shuffleArray(arr) {
   return a;
 }
 
-/* 🆕 精簡版 safeDateStr */
+/* 🆕 精簡版 safeDateStr：Date 構造與 regex 不會丟例外，無需 try/catch */
 function safeDateStr(raw) {
   if (raw === null || raw === undefined) return "";
   const s = String(raw).trim();
   if (!s) return "";
 
+  // 直接解析（ISO 8601 / RFC 2822 等標準格式）
   let d = new Date(s);
   if (!isNaN(d.getTime())) return getHKDateString(d);
 
+  // YYYY/MM/DD 或 YYYY-MM-DD（斜線/連字符分隔，Google Sheet 常見輸出）
   const m1 = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
   if (m1) {
     d = new Date(Number(m1[1]), Number(m1[2]) - 1, Number(m1[3]));
     if (!isNaN(d.getTime())) return getHKDateString(d);
   }
 
+  // DD/MM/YYYY 格式（香港日期慣用格式）
   const m2 = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
   if (m2) {
     d = new Date(Number(m2[3]), Number(m2[2]) - 1, Number(m2[1]));
@@ -257,7 +201,7 @@ function parseScoreTotal(r) {
   return { score, total };
 }
 
-/* 🆕 共用 helper：從記錄物件解析出 HK 日期字串 */
+/* 🆕 共用 helper：從記錄物件解析出 HK 日期字串（優先 DateStr，其次 Timestamp）*/
 function extractRecordDateStr(r) {
   const rawDate = String(r[7] || '').trim();
   if (rawDate) {
@@ -317,14 +261,10 @@ function parseUserData(userArr) {
   return base;
 }
 
-// 🆕 用 normalizeNameForMatch 比對(與後端 canonicalKey_ 一致),跨學年改名也找得到
 function findUser(leaderboardData, userName) {
   if (!leaderboardData || !leaderboardData.users || !userName) return null;
-  const target = normalizeNameForMatch(userName);
-  if (!target) return null;
-  const u = leaderboardData.users.find(
-    row => normalizeNameForMatch(String(row[0] || '').trim()) === target
-  );
+  const shortTarget = shortenName(userName);
+  const u = leaderboardData.users.find(row => shortenName(String(row[0] || '').trim()) === shortTarget);
   return parseUserData(u);
 }
 
@@ -355,6 +295,7 @@ function filterTodayMCQRecords(records, todayStr) {
     const mode = String(r[6] || "").toLowerCase();
     if (!mode.includes('mc')) continue;
 
+    // 優先使用 DateStr 欄位；缺失時再用 Timestamp
     const rowDateStr = String(r[7] || "").trim() === todayStr
       ? todayStr
       : extractRecordDateStr(r);
@@ -383,6 +324,9 @@ function computeRankings(leaderboardData, currentUserName, currentRunRecord, cur
     if (u[0]) userTotalMap.set(u[0], parseInt(u[1]) || 0);
   }
 
+  // 🆕 [H2 修復] 檢查 currentRunRecord 是否已存在於 records（避免重複計入）
+  //     伺服器回傳 records 後，我們剛上傳的成績會出現在裡面；
+  //     若仍把 currentRunRecord 加進去，週榜分數會被算兩次。
   let currentRunAlreadyInRecords = false;
   if (currentRunRecord && currentRunSubmittedAt) {
     const targetName  = currentRunRecord.name;
@@ -394,12 +338,14 @@ function computeRankings(leaderboardData, currentUserName, currentRunRecord, cur
       const rName = String(r[1] || '').trim();
       if (rName !== targetName) continue;
 
+      // 比對 timestamp（容忍 ±90 秒誤差，避免時鐘漂移或 Sheet 寫入延遲）
       const rTs = r[0] ? new Date(r[0]).getTime() : 0;
       if (!rTs || Math.abs(rTs - currentRunSubmittedAt) > 90000) continue;
 
       const st = parseScoreTotal(r);
       if (!st) continue;
 
+      // 同名 + 時間相近 + 分數/題數相同 → 視為同一局
       if (st.score === targetScore && st.total === targetTotal) {
         currentRunAlreadyInRecords = true;
         break;
@@ -408,6 +354,7 @@ function computeRankings(leaderboardData, currentUserName, currentRunRecord, cur
   }
 
   const candidates = filterTodayMCQRecords(records, todayStr);
+  // 🆕 [H2 修復] 只在 records 尚未包含本局時才補上
   if (currentRunRecord && !currentRunAlreadyInRecords) candidates.push(currentRunRecord);
 
   const dailyMap = new Map();
@@ -437,6 +384,7 @@ function computeRankings(leaderboardData, currentUserName, currentRunRecord, cur
     weeklyMap.set(name, (weeklyMap.get(name) || 0) + score);
   }
 
+  // 🆕 [H2 修復] 同樣加上去重判斷
   if (currentRunRecord && !currentRunAlreadyInRecords &&
       currentRunRecord.name !== "訪客 (未登入)" && currentRunRecord.name !== "Guest") {
     weeklyMap.set(
@@ -459,15 +407,22 @@ function computeRankings(leaderboardData, currentUserName, currentRunRecord, cur
 
 function getStudentRecords(records, userName) {
   if (!records || !userName) return [];
-  // 🆕 統一用 normalizeNameForMatch 比對,跨學年新舊記錄都撈得到
-  const targetKey = normalizeNameForMatch(userName);
-  if (!targetKey) return [];
+  const targetRaw   = String(userName).trim();
+  const targetShort = shortenName(targetRaw);
+  const targetRawLC   = targetRaw.toLowerCase();
+  const targetShortLC = targetShort.toLowerCase();
 
   const out = [];
   for (let i = 0; i < records.length; i++) {
     const r = records[i];
     const rawName = String(r[1] || '').trim();
-    if (normalizeNameForMatch(rawName) !== targetKey) continue;
+    const shortName = shortenName(rawName);
+    const sameUser =
+      rawName === targetRaw ||
+      shortName === targetShort ||
+      rawName.toLowerCase() === targetRawLC ||
+      shortName.toLowerCase() === targetShortLC;
+    if (!sameUser) continue;
     const mode = String(r[6] || '').toLowerCase();
     if (!mode.includes('mc')) continue;
     out.push(r);
@@ -478,10 +433,12 @@ function getStudentRecords(records, userName) {
 function computeChapterStats(records, wrongBook) {
   if (!records || records.length === 0) return [];
   const stats = {};
+  // 🆕 正規化章節名：把「Ch.2 生命的基本單位」等變體統一成「Ch.2」
+  // 同時保留選修章節如 E1, E2, E4 不受影響
   function normalizeChapterKey(ch) {
     if (!ch) return ch;
     const m = ch.match(/^(Ch\.\d+)/i);
-    if (m) return m[1];
+    if (m) return m[1]; // 只保留 Ch.數字 部分
     return ch.trim();
   }
 
@@ -500,7 +457,7 @@ function computeChapterStats(records, wrongBook) {
     const confidenceWeight = 1 / chapters.length;
 
     for (let j = 0; j < chapters.length; j++) {
-      const ch = normalizeChapterKey(chapters[j]);
+      const ch = normalizeChapterKey(chapters[j]); // 🆕 正規化
       let s = stats[ch];
       if (!s) {
         s = stats[ch] = { correct: 0, total: 0, sessions: 0, confidence: 0 };
@@ -509,9 +466,13 @@ function computeChapterStats(records, wrongBook) {
       s.total      += perTotal;
       s.sessions   += 1;
       s.confidence += confidenceWeight;
-    }
+}
   }
 
+// 🆕 從錯題本補充章節正確率與信度
+  // 每道錯題有明確章節歸屬（無稀釋問題），是高精準度的單章數據源
+  // 每道錯題貢獻：wrongCount 次答錯 + correctStreak 次答對
+  // 若該章節練習記錄中從未出現，也允許從錯題本新建（只要有答錯記錄）
   if (wrongBook && typeof wrongBook === 'object' && !Array.isArray(wrongBook)) {
     const entries = Object.values(wrongBook);
     for (let k = 0; k < entries.length; k++) {
@@ -520,19 +481,22 @@ function computeChapterStats(records, wrongBook) {
       const ch = normalizeChapterKey(rawCh);
       if (!ch) continue;
 
-      const wrongCount   = item.wrongCount   || 1;
-      const streak       = item.correctStreak || 0;
+      const wrongCount   = item.wrongCount   || 1;   // 至少有1次答錯才進錯題本
+      const streak       = item.correctStreak || 0;  // 近期複習連續答對次數
 
+      // 錯題本每道題貢獻：streak 次答對 + wrongCount 次答錯（共 streak+wrongCount 題）
+      // 權重設為 1.5（比一般大範圍練習高，因章節歸屬精確）
       const wbWeight = 1.5;
       const wbCorrect = streak * wbWeight;
       const wbTotal   = (streak + wrongCount) * wbWeight;
-      const wbConfidence = wbWeight;
+      const wbConfidence = wbWeight; // 每道錯題貢獻固定信度 1.5
 
       if (stats[ch]) {
         stats[ch].correct    += wbCorrect;
         stats[ch].total      += wbTotal;
         stats[ch].confidence += wbConfidence;
       } else {
+        // 從未練習過該章節，但錯題本有記錄 → 允許新建
         stats[ch] = {
           correct:    wbCorrect,
           total:      wbTotal,
@@ -543,6 +507,7 @@ function computeChapterStats(records, wrongBook) {
     }
   }
 
+  /* 🆕 預計算章節數字，避免在排序比較器中重複執行 regex */
   const result = Object.entries(stats).map(([chapter, s]) => {
     let accuracy = 0;
     if (s.total > 0) {
@@ -576,7 +541,7 @@ function computeChapterStats(records, wrongBook) {
   return result;
 }
 
-/* 🆕 computeDailyBestBattle */
+/* 🆕 computeDailyBestBattle：每日取最高戰況分數（battlePoint）的一次練習來繪線圖 */
 function computeDailyBestBattle(records, days) {
   const map = new Map();
   const now = new Date();
@@ -644,7 +609,7 @@ function collectImageUrls(question) {
   return urls;
 }
 
-/* 🆕 真正的 LRU 圖片快取 */
+/* 🆕 真正的 LRU 圖片快取：存取時會重新插入，真正淘汰最久未用 */
 const imageCache = new Map();
 function preloadImage(url) {
   if (!url) return;

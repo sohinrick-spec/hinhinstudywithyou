@@ -737,27 +737,24 @@ function AssignmentReportScreen({ assignment, onBack, leaderboardData }) {
       .finally(() => setLoading(false));
   }, [assignment.id]);
 
- const allStudents = useMemo(() => {
+  const allStudents = useMemo(() => {
     const users = (leaderboardData && leaderboardData.users) || [];
-    const seen = new Map();
-    for (let i = 0; i < users.length; i++) {
-      const n = String(users[i][0] || '').trim();
-      if (!n || n === '訪客 (未登入)' || isTeacher(n)) continue;
-      const key = normalizeNameForMatch(n);
-      if (!key) continue;
-      seen.set(key, n);
-    }
-    let candidates = Array.from(seen.values());
+    let candidates = users
+      .map(u => String(u[0] || '').trim())
+      .filter(n => n && n !== '訪客 (未登入)' && !isTeacher(n));
 
-    // 🆕 依任務目標過濾「應交名單」(全部用 canonical key 比對)
+    // 🆕 依任務目標過濾「應交名單」
     if (assignment.targetStudents && Array.isArray(assignment.targetStudents) && assignment.targetStudents.length > 0) {
+      // 個別學生：只保留指派名單中的學生
       const targetSet = new Set(
-        assignment.targetStudents.map(t => normalizeNameForMatch(String(t || '')))
+        assignment.targetStudents.map(t => shortenName(String(t || '')).toLowerCase())
       );
-      candidates = candidates.filter(n => targetSet.has(normalizeNameForMatch(n)));
+      candidates = candidates.filter(n => targetSet.has(shortenName(n).toLowerCase()));
     } else if (assignment.targetForm && assignment.targetForm !== 'All') {
+      // 年級任務：只保留指定年級的學生
       candidates = candidates.filter(n => getStudentForm(n) === String(assignment.targetForm));
     }
+    // 全校任務（'All' 或無設定）→ 保留全部，不變
     return candidates;
   }, [leaderboardData, assignment]);
 
@@ -772,8 +769,9 @@ function AssignmentReportScreen({ assignment, onBack, leaderboardData }) {
     );
   }
 
-const submittedNames = new Set((report || []).map(r => normalizeNameForMatch(r.studentName)));
-  const notSubmitted = allStudents.filter(n => !submittedNames.has(normalizeNameForMatch(n)));
+  const submittedNames = new Set((report || []).map(r => shortenName(r.studentName).toLowerCase()));
+  const notSubmitted = allStudents.filter(n => !submittedNames.has(shortenName(n).toLowerCase()));
+
   const sorted = (report || []).slice().sort((a, b) => b.accuracy - a.accuracy);
   const avgAcc = sorted.length > 0 ? sorted.reduce((s, r) => s + r.accuracy, 0) / sorted.length : 0;
   const avgTime = sorted.length > 0 ? sorted.reduce((s, r) => s + r.timeMs, 0) / sorted.length : 0;

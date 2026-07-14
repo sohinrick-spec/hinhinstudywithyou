@@ -1028,36 +1028,17 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName }) {
   const studentsData = useMemo(() => {
     const records = leaderboardData?.records || [];
     const users   = leaderboardData?.users   || [];
-    // 🆕 每人「當前 form」(以最新一筆記錄為準)
-    const formMap = buildStudentFormMap(records);
-    const map = new Map();  // key = normalizeNameForMatch
+    const map = new Map();
 
     for (let i = 0; i < users.length; i++) {
       const u = users[i];
       const rawName = String(u[0] || '').trim();
       if (!rawName || isTeacher(rawName)) continue;
-      const key = normalizeNameForMatch(rawName);
-      if (!key) continue;
-
-      // form 優先用最新記錄,退回 Users 表名字
-      const form = resolveStudentForm(rawName, formMap) || getStudentForm(rawName);
-      const totalQ = parseInt(u[1]) || 0;
-
-      const existing = map.get(key);
-      if (existing) {
-        // Users 表若殘留新舊兩列 → 合併,保留較新資料
-        existing.totalQuestions = Math.max(existing.totalQuestions, totalQ);
-        if (form) existing.form = form;
-        if (u[2] && (!existing.lastLogin || String(u[2]) > String(existing.lastLogin))) {
-          existing.lastLogin = u[2];
-        }
-        continue;
-      }
-
+      const key = shortenName(rawName).toLowerCase().trim();
       map.set(key, {
         name: shortenName(rawName), rawName: rawName,
-        form: form,
-        totalQuestions: totalQ,
+        form: getStudentForm(rawName),
+        totalQuestions: parseInt(u[1]) || 0,
         lastLogin: u[2] || null,
         records: [],
         totalCorrect: 0, totalAttempted: 0, attempts: 0,
@@ -1076,16 +1057,11 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName }) {
       const mode = String(r[6] || '').toLowerCase();
       if (!mode.includes('mc')) continue;
 
-      const key = normalizeNameForMatch(rawName);
-      if (!key) continue;
+      const key = shortenName(rawName).toLowerCase().trim();
       let s = map.get(key);
       if (!s) {
-        // 只在記錄中出現(未在 Users 表)→ 用最新記錄的 form 與顯示名
-        const info = formMap.get(key);
-        const displayRaw = (info && info.displayName) || rawName;
         s = {
-          name: shortenName(displayRaw), rawName: displayRaw,
-          form: (info && info.form) || getStudentForm(rawName),
+          name: shortenName(rawName), rawName: rawName, form: getStudentForm(rawName),
           totalQuestions: 0, lastLogin: null, records: [],
           totalCorrect: 0, totalAttempted: 0, attempts: 0,
           todayQuestions: 0, todayCorrect: 0, todayAttempts: 0,
@@ -1130,6 +1106,7 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName }) {
         ? Math.round(s.todayCorrect / s.todayQuestions * 100) : 0;
       const weekAcc = s.weekQuestions > 0
         ? Math.round(s.weekCorrect / s.weekQuestions * 100) : 0;
+      // 取出該學生的雲端錯題本（若有的話）
       const wbAll = leaderboardData?.wrongBookAll || {};
       const studentWrongBook = wbAll[s.rawName] || {};
       out.push({
@@ -1182,9 +1159,10 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName }) {
 
   /* 🆕 每日趨勢資料（依當前 form 篩選） */
   const dailyTrendData = useMemo(() => {
-    const filteredKeys = new Set(filteredStudentsData.map(s => normalizeNameForMatch(s.rawName)));
+    const filteredKeys = new Set(filteredStudentsData.map(s => shortenName(s.rawName).toLowerCase()));
     const records = (leaderboardData?.records || []).filter(r => {
-      return filteredKeys.has(normalizeNameForMatch(String(r[1] || '')));
+      const k = shortenName(String(r[1] || '')).toLowerCase();
+      return filteredKeys.has(k);
     });
     return computeDailyTrend(records, trendDays);
   }, [leaderboardData, filteredStudentsData, trendDays]);
