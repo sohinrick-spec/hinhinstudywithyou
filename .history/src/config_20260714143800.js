@@ -3,7 +3,7 @@
  * ============================================================================ */
 
 const CONFIG = {
-  GOOGLE_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyK-O06xTn9urYLk4Pwnqp-efx_MfXhZKrDq2JwTegOztedMm6_rSvbqXsuo8jvsh8T/exec",
+  GOOGLE_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxaXRcXlawwwkYMT2mMlk-B3iZAG2mUqb3DP7F8jFrw2iNKdbDnmD4FGmBn6AqT0lWm/exec",
   QUESTION_API_URL: "https://script.google.com/macros/s/AKfycbykunoXUXnsCsjqzvHHsOGs4sG-B74Ia5Qz4eip-cNkfkilxZago15Vpe7u_LODtfqBEg/exec",
   GOOGLE_CLIENT_ID: "1009693128680-5g65g888ss72cqr8dkdl84ci77rc7qv1.apps.googleusercontent.com",
   ALLOWED_EMAIL_DOMAIN: "@tcss.edu.hk",
@@ -11,7 +11,7 @@ const CONFIG = {
   CHAPTER_RANGE: { start: 2, end: 30 },
   ELECTIVES: ['E1', 'E2', 'E4'],
   GAME_MODE: '20mc',
-  TEACHER_NAMES: ['Chi Hin So','Siu Yi Koo'],
+  TEACHER_NAMES: ['Chi Hin So'],
   ANTI_CHEAT: {
   minTimeMs: 30000,
   minAccuracy: 0.30,       

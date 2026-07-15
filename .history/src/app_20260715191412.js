@@ -747,7 +747,7 @@ const [mySkipCards, setMySkipCards] = useState(0);
               onShowStats={() => setGameState('stats')}
               onShowTeacherStats={() => requireAdmin('teacher_stats')}
               onShowAssignmentAdmin={() => requireAdmin('assignment_admin')}
-              isAdminUnlocked={isAdmin}
+              isAdminUnlocked={isAdminUnlocked}
               onShowWrongBook={() => setGameState('wrongbook')}
               wrongBookCount={wrongBookCount}
               settings={settings} setSettings={setSettings}
@@ -803,7 +803,7 @@ const [mySkipCards, setMySkipCards] = useState(0);
 
         {gameState === 'teacher_stats' && (
           <motion.div key="teacher_stats" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="w-full flex justify-center">
-            {isAdmin ? (
+            {isAdminUnlocked ? (
               <TeacherStatsScreen
                 onBack={() => setGameState('start')}
                 leaderboardData={leaderboardData}
@@ -851,7 +851,7 @@ const [mySkipCards, setMySkipCards] = useState(0);
 
         {gameState === 'assignment_admin' && (
           <motion.div key="aadmin" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="w-full flex justify-center">
-            {isAdmin ? (
+            {isAdminUnlocked ? (
               <AssignmentAdminScreen
                 onBack={() => setGameState('start')}
                 leaderboardData={leaderboardData}

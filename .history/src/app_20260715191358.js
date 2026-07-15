@@ -673,19 +673,19 @@ const [mySkipCards, setMySkipCards] = useState(0);
 {gameState === 'start' && (
   <button
     onClick={() => {
-      if (isAdmin) {
+      if (isAdminUnlocked) {
         requireAdmin('assignment_admin');
       } else {
         setAdminModal({ open: true, target: null, pwd: '', loading: false, error: '' });
       }
     }}
-    title={isAdmin ? '管理員權限（點擊進入派卷管理）' : '管理員登入'}
+    title={isAdminUnlocked ? '已解鎖管理員（點擊進入派卷管理）' : '管理員登入'}
     className={`fixed top-[10.25rem] right-4 z-[999] w-10 h-10 rounded-full shadow-lg border flex items-center justify-center transition-all hover:scale-110 text-lg ${
-      isAdmin
+      isAdminUnlocked
         ? 'bg-emerald-500 border-emerald-400 text-white'
         : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
     }`}>
-    <i className={isAdmin ? 'fas fa-unlock' : 'fas fa-user-shield'}></i>
+    <i className={isAdminUnlocked ? 'fas fa-unlock' : 'fas fa-user-shield'}></i>
   </button>
 )}
 
@@ -747,7 +747,7 @@ const [mySkipCards, setMySkipCards] = useState(0);
               onShowStats={() => setGameState('stats')}
               onShowTeacherStats={() => requireAdmin('teacher_stats')}
               onShowAssignmentAdmin={() => requireAdmin('assignment_admin')}
-              isAdminUnlocked={isAdmin}
+              isAdminUnlocked={isAdminUnlocked}
               onShowWrongBook={() => setGameState('wrongbook')}
               wrongBookCount={wrongBookCount}
               settings={settings} setSettings={setSettings}
@@ -803,7 +803,7 @@ const [mySkipCards, setMySkipCards] = useState(0);
 
         {gameState === 'teacher_stats' && (
           <motion.div key="teacher_stats" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="w-full flex justify-center">
-            {isAdmin ? (
+            {isAdminUnlocked ? (
               <TeacherStatsScreen
                 onBack={() => setGameState('start')}
                 leaderboardData={leaderboardData}
@@ -851,7 +851,7 @@ const [mySkipCards, setMySkipCards] = useState(0);
 
         {gameState === 'assignment_admin' && (
           <motion.div key="aadmin" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="w-full flex justify-center">
-            {isAdmin ? (
+            {isAdminUnlocked ? (
               <AssignmentAdminScreen
                 onBack={() => setGameState('start')}
                 leaderboardData={leaderboardData}

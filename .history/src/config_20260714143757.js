@@ -11,7 +11,7 @@ const CONFIG = {
   CHAPTER_RANGE: { start: 2, end: 30 },
   ELECTIVES: ['E1', 'E2', 'E4'],
   GAME_MODE: '20mc',
-  TEACHER_NAMES: ['Chi Hin So','Siu Yi Koo'],
+  TEACHER_NAMES: ['Chi Hin So'],['Chi Hin So']
   ANTI_CHEAT: {
   minTimeMs: 30000,
   minAccuracy: 0.30,       
