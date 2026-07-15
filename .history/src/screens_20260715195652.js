@@ -1408,24 +1408,22 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName, question
             icon="fa-bell" iconColor="text-red-500"
             badge={`${inactiveStudents.length + laggingStudents.length} 人`}
             badgeColor="red" defaultOpen={true}>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {inactiveStudents.length > 0 && (
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <i className="fas fa-user-xmark text-red-500"></i>
                     <span className="font-bold text-red-700 dark:text-red-300 text-sm">尚未開始（{inactiveStudents.length} 人）</span>
                   </div>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-1.5">
-                    {inactiveStudents.slice(0, 80).map((s, i) => (
+                  <div className="flex flex-wrap gap-1">
+                    {inactiveStudents.slice(0, 60).map((s, i) => (
                       <button key={i} onClick={() => setSelectedStudent(s.rawName)}
                         title={`查看 ${s.name} 的統計`}
-                        className="text-[11px] leading-none truncate bg-white dark:bg-red-900/40 text-red-700 dark:text-red-300 px-1.5 py-1.5 rounded border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/60 transition text-center">
+                        className="text-[11px] leading-none bg-white dark:bg-red-900/40 text-red-700 dark:text-red-300 px-1.5 py-1 rounded border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/60 transition">
                         {s.name}
                       </button>
                     ))}
-                    {inactiveStudents.length > 80 && (
-                      <span className="text-[11px] text-red-600 dark:text-red-400 self-center">…等 {inactiveStudents.length} 人</span>
-                    )}
+                    {inactiveStudents.length > 60 && <span className="text-xs text-red-600 dark:text-red-400 self-center">…等 {inactiveStudents.length} 人</span>}
                   </div>
                 </div>
               )}
@@ -1437,13 +1435,13 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName, question
                       連續 3 天以上未練習（{laggingStudents.length} 人）
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1.5">
+                  <div className="flex flex-wrap gap-1">
                     {laggingStudents.map((s, i) => (
                       <button key={i} onClick={() => setSelectedStudent(s.rawName)}
                         title={`${s.name}　最後練習：${s.lastPracticeDate || '—'}`}
-                        className="text-[11px] leading-none bg-white dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 px-1.5 py-1.5 rounded border border-yellow-200 dark:border-yellow-800 hover:bg-yellow-100 dark:hover:bg-yellow-900/60 transition flex items-center justify-between gap-1">
-                        <span className="truncate">{s.name}</span>
-                        <span className="text-[9px] text-yellow-500 font-mono flex-shrink-0">
+                        className="text-[11px] leading-none bg-white dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 px-1.5 py-1 rounded border border-yellow-200 dark:border-yellow-800 hover:bg-yellow-100 dark:hover:bg-yellow-900/60 transition inline-flex items-center gap-1">
+                        <span>{s.name}</span>
+                        <span className="text-[9px] text-yellow-500 font-mono">
                           {s.lastPracticeDate ? String(s.lastPracticeDate).slice(5) : '—'}
                         </span>
                       </button>
@@ -1693,68 +1691,24 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName, question
                     ? formatText(q.title || q.question || '（無題目文字）')
                     : `⚠️ 找不到題目（編號：${item.qId}）`;
                   const cat = q ? (q.category || '') : '';
-                  const opts = q ? resolveOptions(q) : [];
-                  const correctIdx = q ? resolveCorrectIndex(q.correctIndex) : -1;
                   return (
-                    <div key={i} className="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                      <div className="flex items-start gap-3">
-                        <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow ${i === 0 ? 'bg-red-600' : i === 1 ? 'bg-red-500' : i === 2 ? 'bg-red-400' : 'bg-gray-400'}`}>
-                          {i + 1}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-sm font-medium leading-snug mb-1 ${q ? 'text-gray-800 dark:text-gray-100' : 'text-amber-700 dark:text-amber-400'}`}>
-                            {titleText}
-                          </p>
-
-                          {q && q.question_img && (
-                            <div className="my-2 inline-flex bg-white dark:bg-gray-800 rounded-lg p-1 border border-gray-100 dark:border-gray-600 max-w-full">
-                              <LoadingImage src={q.question_img} alt="題目圖片"
-                                className="max-h-40 object-contain rounded" minHeight="min-h-[80px]" />
-                            </div>
-                          )}
-
-                          <div className="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
-                            <span className="text-red-600 dark:text-red-400 font-bold">
-                              <i className="fas fa-users mr-1"></i>{item.studentCount} 位同學
+                    <div key={i} className="flex items-start gap-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                      <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow ${i === 0 ? 'bg-red-600' : i === 1 ? 'bg-red-500' : i === 2 ? 'bg-red-400' : 'bg-gray-400'}`}>
+                        {i + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-medium leading-snug mb-1 ${q ? 'text-gray-800 dark:text-gray-100' : 'text-amber-700 dark:text-amber-400'}`}>
+                          {titleText}
+                        </p>
+                        <div className="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-red-600 dark:text-red-400 font-bold">
+                            <i className="fas fa-users mr-1"></i>{item.studentCount} 位同學
+                          </span>
+                          <span>・總錯 {item.totalWrong} 次</span>
+                          {cat && (
+                            <span className="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full">
+                              {cat}
                             </span>
-                            <span>・總錯 {item.totalWrong} 次</span>
-                            {cat && (
-                              <span className="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full">
-                                {cat}
-                              </span>
-                            )}
-                          </div>
-
-                          {q && opts.length > 0 && (
-                            <details className="mt-2 group">
-                              <summary className="cursor-pointer list-none select-none text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
-                                <i className="fas fa-chevron-right transition-transform group-open:rotate-90"></i>
-                                查看選項與答案
-                              </summary>
-                              <div className="mt-2 space-y-1">
-                                {opts.map((opt, oi) => (
-                                  <div key={oi} className={`flex items-start gap-2 text-xs p-1.5 rounded ${
-                                    oi === correctIdx
-                                      ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-semibold border border-green-200 dark:border-green-800'
-                                      : 'text-gray-600 dark:text-gray-300'
-                                  }`}>
-                                    <span className="flex-shrink-0 font-bold">{String.fromCharCode(65 + oi)}.</span>
-                                    <span className="flex-1 break-words">{formatText(opt)}</span>
-                                    {q[`opt_${oi}_img`] && (
-                                      <LoadingImage src={q[`opt_${oi}_img`]} alt="選項圖片"
-                                        className="max-h-16 object-contain rounded ml-1" minHeight="min-h-[40px]" />
-                                    )}
-                                    {oi === correctIdx && <span className="flex-shrink-0">✓</span>}
-                                  </div>
-                                ))}
-                                {q.explanation && (
-                                  <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded text-xs text-blue-800 dark:text-blue-300 mt-1">
-                                    <i className="fas fa-lightbulb mr-1"></i>
-                                    {formatText(q.explanation)}
-                                  </div>
-                                )}
-                              </div>
-                            </details>
                           )}
                         </div>
                       </div>

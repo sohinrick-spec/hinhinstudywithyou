@@ -1408,24 +1408,22 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName, question
             icon="fa-bell" iconColor="text-red-500"
             badge={`${inactiveStudents.length + laggingStudents.length} 人`}
             badgeColor="red" defaultOpen={true}>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {inactiveStudents.length > 0 && (
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <i className="fas fa-user-xmark text-red-500"></i>
                     <span className="font-bold text-red-700 dark:text-red-300 text-sm">尚未開始（{inactiveStudents.length} 人）</span>
                   </div>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-1.5">
-                    {inactiveStudents.slice(0, 80).map((s, i) => (
+                  <div className="flex flex-wrap gap-1">
+                    {inactiveStudents.slice(0, 60).map((s, i) => (
                       <button key={i} onClick={() => setSelectedStudent(s.rawName)}
                         title={`查看 ${s.name} 的統計`}
-                        className="text-[11px] leading-none truncate bg-white dark:bg-red-900/40 text-red-700 dark:text-red-300 px-1.5 py-1.5 rounded border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/60 transition text-center">
+                        className="text-[11px] leading-none bg-white dark:bg-red-900/40 text-red-700 dark:text-red-300 px-1.5 py-1 rounded border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/60 transition">
                         {s.name}
                       </button>
                     ))}
-                    {inactiveStudents.length > 80 && (
-                      <span className="text-[11px] text-red-600 dark:text-red-400 self-center">…等 {inactiveStudents.length} 人</span>
-                    )}
+                    {inactiveStudents.length > 60 && <span className="text-xs text-red-600 dark:text-red-400 self-center">…等 {inactiveStudents.length} 人</span>}
                   </div>
                 </div>
               )}
@@ -1437,13 +1435,13 @@ function TeacherStatsScreen({ onBack, leaderboardData, currentUserName, question
                       連續 3 天以上未練習（{laggingStudents.length} 人）
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1.5">
+                  <div className="flex flex-wrap gap-1">
                     {laggingStudents.map((s, i) => (
                       <button key={i} onClick={() => setSelectedStudent(s.rawName)}
                         title={`${s.name}　最後練習：${s.lastPracticeDate || '—'}`}
-                        className="text-[11px] leading-none bg-white dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 px-1.5 py-1.5 rounded border border-yellow-200 dark:border-yellow-800 hover:bg-yellow-100 dark:hover:bg-yellow-900/60 transition flex items-center justify-between gap-1">
-                        <span className="truncate">{s.name}</span>
-                        <span className="text-[9px] text-yellow-500 font-mono flex-shrink-0">
+                        className="text-[11px] leading-none bg-white dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 px-1.5 py-1 rounded border border-yellow-200 dark:border-yellow-800 hover:bg-yellow-100 dark:hover:bg-yellow-900/60 transition inline-flex items-center gap-1">
+                        <span>{s.name}</span>
+                        <span className="text-[9px] text-yellow-500 font-mono">
                           {s.lastPracticeDate ? String(s.lastPracticeDate).slice(5) : '—'}
                         </span>
                       </button>

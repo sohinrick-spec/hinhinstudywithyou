@@ -70,7 +70,7 @@ const LoadingImage = memo(function LoadingImage({
               className="text-xs bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-800 text-red-700 dark:text-red-300 px-3 py-1 rounded-full font-medium transition-colors flex items-center gap-1 border border-red-200 dark:border-red-700"
               title="重新加載此圖片">
               <i className="fas fa-rotate-right"></i>
-              重新加載
+              重新加載（剩 {retriesLeft} 次）
             </button>
           ) : (
             <span className="text-[10px] text-red-400 dark:text-red-500">已達重試上限</span>
